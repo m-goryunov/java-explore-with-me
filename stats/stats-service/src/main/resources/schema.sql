@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS endpoint_hits CASCADE;
+
+CREATE TABLE IF NOT EXISTS endpoint_hits
+(
+    id        BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    app       VARCHAR(255) NOT NULL,
+    uri       VARCHAR(255) NOT NULL,
+    ip        VARCHAR(15)  NOT NULL,
+    timestamp TIMESTAMP    NOT NULL
+);
