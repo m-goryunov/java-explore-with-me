@@ -21,11 +21,25 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=iamroot
 
-#  ewm-service:
-#    ports:
-#      - "8080:8080"
-#  environment:
-#    - CLIENT_URL=http://stats-service:9090
-#
-#  ewm-db:
-#    image: postgres:14-alpine
+  main-service:
+    build: ./main
+    image: main-service-image
+    container_name: main-service-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - main-db
+      - stats-service
+    environment:
+      - CLIENT_URL=http://stats-service:9090
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/main-db
+
+  main-db:
+    image: postgres:14-alpine
+    container_name: postgres-main-db-container
+    ports:
+      - "6542:5432"
+    environment:
+      - POSTGRES_DB=main-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=iamroot
