@@ -1,14 +1,16 @@
 package ru.practicum.model;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.EndpointHitDto;
 import ru.practicum.ViewStatsDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class StatsMapper {
 
-    public static EndpointHit fromHitDto(EndpointHitDto dto) {
+    public EndpointHit fromHitDto(EndpointHitDto dto) {
         return EndpointHit.builder()
                 .id(dto.getId())
                 .uri(dto.getUri())
@@ -18,7 +20,7 @@ public class StatsMapper {
                 .build();
     }
 
-    public static EndpointHitDto toHitDto(EndpointHit hit) {
+    public EndpointHitDto toHitDto(EndpointHit hit) {
         return EndpointHitDto.builder()
                 .id(hit.getId())
                 .uri(hit.getUri())
@@ -28,7 +30,7 @@ public class StatsMapper {
                 .build();
     }
 
-    public static ViewStats fromViewStatsDto(ViewStatsDto dto) {
+    public ViewStats fromViewStatsDto(ViewStatsDto dto) {
         return ViewStats.builder()
                 .hits(dto.getHits())
                 .uri(dto.getUri())
@@ -36,7 +38,7 @@ public class StatsMapper {
                 .build();
     }
 
-    public static ViewStatsDto toViewStatsDto(ViewStats viewStats) {
+    public ViewStatsDto toViewStatsDto(ViewStats viewStats) {
         return ViewStatsDto.builder()
                 .hits(viewStats.getHits())
                 .uri(viewStats.getUri())
@@ -44,7 +46,7 @@ public class StatsMapper {
                 .build();
     }
 
-    public static List<ViewStatsDto> toViewStatsDto(List<ViewStats> viewStats) {
+    public List<ViewStatsDto> toViewStatsDto(List<ViewStats> viewStats) {
         return viewStats.stream()
                 .map(StatsMapper::toViewStatsDto)
                 .collect(Collectors.toList());

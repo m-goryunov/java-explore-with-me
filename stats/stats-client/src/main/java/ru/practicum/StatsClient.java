@@ -27,9 +27,11 @@ public class StatsClient {
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
 
+        String uri = String.join(",", uris);
+
         HashMap<String, Object> params = new HashMap<>(Map.of("start", start,
                 "end", end,
-                "uris", uris,
+                "uris", uri,
                 "unique", unique));
 
         ResponseEntity<Object> response;
