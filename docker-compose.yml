@@ -22,7 +22,7 @@ services:
       - POSTGRES_PASSWORD=iamroot
 
   main-service:
-    build: ./main
+    build: ./main-service
     image: main-service-image
     container_name: main-service-container
     ports:
