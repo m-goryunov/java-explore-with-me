@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EventDto {
+public class EventWithViewsDto {
     Long id;
 
     String annotation;
@@ -36,16 +36,18 @@ public class EventDto {
 
     LocationDto location;
 
-    Boolean paid;
+    boolean paid;
 
     Integer participantLimit;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime publishedOn;
 
-    Boolean requestModeration;
+    boolean requestModeration;
 
     State state;
 
     String title;
+
+    Long views;
 }

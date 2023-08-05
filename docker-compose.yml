@@ -32,7 +32,7 @@ services:
       - stats-service
     environment:
       - CLIENT_URL=http://stats-service:9090
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/main-db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/main-db
 
   main-db:
     image: postgres:14-alpine

@@ -10,9 +10,7 @@ import javax.validation.constraints.Size;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryDto {
-    private Long id;
-
+public class NewCategoryDto {
     @Size(min = 1, max = 50)
     @NotBlank
     private String name;
