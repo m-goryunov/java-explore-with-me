@@ -2,7 +2,6 @@ package ru.practicum.event;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.Formula;
 import ru.practicum.category.Category;
 import ru.practicum.event.util.State;
 import ru.practicum.location.Location;
