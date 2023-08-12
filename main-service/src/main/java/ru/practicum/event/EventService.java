@@ -121,7 +121,7 @@ public class EventService {
             size++;
         }
         if (update.getLocation() != null) {
-            event.setLocation(getLocation(update.getLocation()));
+            event.setLocation(getLocation(LocationMapper.toLocation(update.getLocation())));
             size++;
         }
         if (update.getParticipantLimit() != null) {
