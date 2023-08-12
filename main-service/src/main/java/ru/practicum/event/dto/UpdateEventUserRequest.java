@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.event.util.StateActionPrivate;
-import ru.practicum.location.Location;
 import ru.practicum.location.LocationDto;
 
 import javax.validation.constraints.Positive;

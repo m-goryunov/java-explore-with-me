@@ -35,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.practicum.event.util.State.*;
@@ -419,28 +420,28 @@ public class EventService {
                 .map(event -> String.format("/events/%s", event.getId()))
                 .collect(Collectors.toList());
 
-        LocalDateTime start = events.stream()
+        Optional<LocalDateTime> start = events.stream()
                 .map(Event::getCreatedOn)
-                .min(LocalDateTime::compareTo)
-                .orElseThrow(() -> new NotFoundException("Start was not found"));
+                .min(LocalDateTime::compareTo);
 
-        ResponseEntity<Object> response = statsClient.getStats(start, LocalDateTime.now(), uris, false);
+        if (start.isPresent()) {
+            ResponseEntity<Object> response = statsClient.getStats(start.get(), LocalDateTime.now(), uris, false);
 
-        ObjectMapper mapper = new ObjectMapper();
-        List<ViewStatsDto> viewStatsList = mapper.convertValue(response.getBody(), new TypeReference<>() {
-        });
+            ObjectMapper mapper = new ObjectMapper();
+            List<ViewStatsDto> viewStatsList = mapper.convertValue(response.getBody(), new TypeReference<>() {
+            });
+            for (Event event : events) {
+                ViewStatsDto currentViewStats = viewStatsList.stream()
+                        .filter(statsDto -> {
+                            Long eventIdOfViewStats = Long.parseLong(statsDto.getUri().substring("/events/".length()));
+                            return eventIdOfViewStats.equals(event.getId());
+                        })
+                        .findFirst()
+                        .orElse(null);
 
-        for (Event event : events) {
-            ViewStatsDto currentViewStats = viewStatsList.stream()
-                    .filter(statsDto -> {
-                        Long eventIdOfViewStats = Long.parseLong(statsDto.getUri().substring("/events/".length()));
-                        return eventIdOfViewStats.equals(event.getId());
-                    })
-                    .findFirst()
-                    .orElse(null);
-
-            Long views = (currentViewStats != null) ? currentViewStats.getHits() : 0;
-            event.setViews(views.intValue() - 2);
+                Long views = (currentViewStats != null) ? currentViewStats.getHits() : 0;
+                event.setViews(views.intValue() - 2);
+            }
         }
         eventRepository.saveAll(events);
     }
