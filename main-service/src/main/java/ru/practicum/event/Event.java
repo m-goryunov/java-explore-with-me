@@ -2,6 +2,7 @@ package ru.practicum.event;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Formula;
 import ru.practicum.category.Category;
 import ru.practicum.event.util.State;
 import ru.practicum.location.Location;
@@ -55,6 +56,6 @@ public class Event {
     State state;
     @Column(name = "title", nullable = false, length = 120)
     String title;
-    @Column(name = "views")
+    @Transient
     Integer views;
 }

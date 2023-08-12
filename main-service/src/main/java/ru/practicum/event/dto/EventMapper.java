@@ -4,6 +4,7 @@ package ru.practicum.event.dto;
 import lombok.experimental.UtilityClass;
 import ru.practicum.category.dto.CategoryMapper;
 import ru.practicum.event.Event;
+import ru.practicum.location.LocationMapper;
 import ru.practicum.user.dto.UserMapper;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class EventMapper {
                 .confirmedRequests(null)
                 .description(newEventDto.getDescription())
                 .eventDate(newEventDto.getEventDate())
-                .location(newEventDto.getLocation())
+                .location(LocationMapper.toLocation(newEventDto.getLocation()))
                 .paid(newEventDto.getPaid())
                 .participantLimit(newEventDto.getParticipantLimit())
                 .requestModeration(newEventDto.getRequestModeration())
@@ -37,7 +38,7 @@ public class EventMapper {
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
-                .location(event.getLocation())
+                .location(LocationMapper.toLocationDto(event.getLocation()))
                 .paid(event.getPaid())
                 .participantLimit(event.getParticipantLimit())
                 .publishedOn(event.getPublisherDate())

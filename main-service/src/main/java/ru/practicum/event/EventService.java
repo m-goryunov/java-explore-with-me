@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import ru.practicum.exception.ForbiddenException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.location.Location;
+import ru.practicum.location.LocationMapper;
 import ru.practicum.location.LocationRepository;
 import ru.practicum.request.ParticipationRequest;
 import ru.practicum.request.RequestRepository;
@@ -51,6 +53,9 @@ public class EventService {
     final RequestRepository requestRepository;
     final StatsClient statsClient;
 
+    @Value("${app}")
+    String app;
+
     @Transactional
     public Event saveEvent(Long userId, NewEventDto eventDto) {
         User user = userRepository.findById(userId).orElseThrow(
@@ -62,7 +67,7 @@ public class EventService {
         event.setCategory(category);
         event.setInitiator(user);
         event.setState(PENDING);
-        event.setLocation(getLocation(eventDto.getLocation()));
+        event.setLocation(getLocation(LocationMapper.toLocation(eventDto.getLocation())));
         event.setCreatedOn(createdOn);
         event.setConfirmedRequests(0);
         event.setViews(0);
@@ -111,7 +116,7 @@ public class EventService {
             event.setCategory(category);
             size++;
         }
-        if (update.getDescription() != null) {
+        if (update.getDescription() != null && !update.getDescription().isBlank()) {
             event.setDescription(update.getDescription());
             size++;
         }
@@ -139,15 +144,11 @@ public class EventService {
                     break;
             }
         }
-        if (update.getTitle() != null) {
+        if (update.getTitle() != null && !update.getTitle().isBlank()) {
             event.setTitle(update.getTitle());
             size++;
         }
-        Event eventAfterUpdate = null;
-        if (size > 0) {
-            eventAfterUpdate = eventRepository.save(event);
-        }
-        return eventAfterUpdate;
+        return event;
     }
 
     @Transactional
@@ -210,18 +211,14 @@ public class EventService {
         }
         int countUpdate = 0;
         if (update.getAnnotation() != null && !update.getAnnotation().isBlank()) {
-            if (update.getAnnotation().length() < 20 || update.getAnnotation().length() > 2000) {
-                throw new ForbiddenException("Аннотация болжна быть не более 2000 символов.");
-            } else {
-                event.setAnnotation(update.getAnnotation());
-            }
+            event.setAnnotation(update.getAnnotation());
         }
         if (update.getCategory() != null) {
             Category category = getCategoryById(update.getCategory());
             event.setCategory(category);
             countUpdate = 1;
         }
-        if (update.getDescription() != null && !update.getDescription().isEmpty()) {
+        if (update.getDescription() != null && !update.getDescription().isBlank()) {
             event.setDescription(update.getDescription());
             countUpdate = 1;
         }
@@ -231,7 +228,7 @@ public class EventService {
             countUpdate = 1;
         }
         if (update.getLocation() != null) {
-            event.setLocation(getLocation(update.getLocation()));
+            event.setLocation(getLocation(LocationMapper.toLocation(update.getLocation())));
             countUpdate = 1;
         }
         if (update.getPaid() != null) {
@@ -259,9 +256,7 @@ public class EventService {
             event.setTitle(update.getTitle());
             countUpdate = 1;
         }
-        Event eventAfterUpdate = null;
-        if (countUpdate > 0) eventAfterUpdate = eventRepository.save(event);
-        return eventAfterUpdate;
+        return event;
     }
 
     public List<Event> getAllEventForParamFromAdmin(List<Long> users,
@@ -296,7 +291,7 @@ public class EventService {
 
     public List<Event> getAllEventsPublic(String text, List<Long> categories, Boolean paid,
                                           LocalDateTime start, LocalDateTime end,
-                                          Boolean onlyAvailable, String sort, Pageable pageable, HttpServletRequest request) {
+                                          Boolean onlyAvailable, Pageable pageable, HttpServletRequest request) {
         if (end != null && start != null) {
             if (end.isBefore(start)) {
                 throw new ValidationException("Дата начала не может быть позднее даты окончания.");
@@ -353,6 +348,7 @@ public class EventService {
     }
 
     private CaseUpdatedStatusDto statusHandler(Event event, CaseUpdatedStatusDto caseUpdatedStatus, RequestStatus status) {
+        List<ParticipationRequest> requests = new ArrayList<>();
         Long eventId = event.getId();
         List<Long> ids = caseUpdatedStatus.getIdsFromUpdateStatus();
         int idsSize = caseUpdatedStatus.getIdsFromUpdateStatus().size();
@@ -364,11 +360,12 @@ public class EventService {
                 break;
             }
             request.setStatus(status);
-            requestRepository.save(request);
+            requests.add(request);
             Long confirmedId = request.getId();
             processedIds.add(confirmedId);
             freeRequest--;
         }
+        requestRepository.saveAll(requests);
         Integer confirmedRequestUpdate = event.getConfirmedRequests() + processedIds.size();
         event.setConfirmedRequests(confirmedRequestUpdate);
         eventRepository.save(event);
@@ -465,7 +462,6 @@ public class EventService {
     }
 
     private void saveHit(HttpServletRequest request) {
-        String app = "main-service";
         statsClient.saveHit(EndpointHitDto.builder()
                 .app(app)
                 .uri(request.getRequestURI())

@@ -31,7 +31,6 @@ public class EventControllerPrivate {
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getAllEventsByUserId(@PathVariable(value = "userId") @Min(1) Long userId,
                                                     @RequestParam(value = "from", required = false, defaultValue = "0") @Min(0) Integer from,
                                                     @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size) {
@@ -40,14 +39,12 @@ public class EventControllerPrivate {
     }
 
     @GetMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
     public EventFullDto getFullEventByOwner(@PathVariable(value = "userId") @Min(1) Long userId,
                                             @PathVariable(value = "eventId") @Min(1) Long eventId) {
         return EventMapper.toFullDto(eventService.getFullEventByOwner(userId, eventId));
     }
 
     @PatchMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
     public EventFullDto updateEventByOwner(@PathVariable(value = "userId") @Min(0) Long userId,
                                            @PathVariable(value = "eventId") @Min(0) Long eventId,
                                            @Valid @RequestBody UpdateEventUserRequest inputUpdate) {
@@ -55,14 +52,12 @@ public class EventControllerPrivate {
     }
 
     @GetMapping("/{eventId}/requests")
-    @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getAllRequestByEventFromOwner(@PathVariable(value = "userId") @Min(1) Long userId,
                                                                        @PathVariable(value = "eventId") @Min(1) Long eventId) {
         return RequestMapper.toParticipationRequestDto(eventService.getAllRequestByEventFromOwner(userId, eventId));
     }
 
     @PatchMapping("/{eventId}/requests")
-    @ResponseStatus(HttpStatus.OK)
     public EventRequestStatusUpdateResult updateStatusRequestFromOwner(@PathVariable(value = "userId") @Min(1) Long userId,
                                                                        @PathVariable(value = "eventId") @Min(1) Long eventId,
                                                                        @RequestBody EventRequestStatusUpdateRequest inputUpdate) {

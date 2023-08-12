@@ -5,6 +5,7 @@ import lombok.*;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.event.util.State;
 import ru.practicum.location.Location;
+import ru.practicum.location.LocationDto;
 import ru.practicum.user.dto.UserShortDto;
 
 import javax.validation.constraints.NotNull;
@@ -28,7 +29,7 @@ public class EventFullDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
     UserShortDto initiator;
-    Location location;
+    LocationDto location;
     Boolean paid;
     Integer participantLimit;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

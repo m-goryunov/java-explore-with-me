@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.location.Location;
+import ru.practicum.location.LocationDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 
 @Getter
@@ -26,15 +24,18 @@ public class NewEventDto {
     @NotBlank
     @Length(max = 7000, min = 20)
     private String description;
+    @NotNull
+    @Future
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     @NotNull
-    private Location location;
+    private LocationDto location;
     private Boolean paid = false;
     @PositiveOrZero
     private Integer participantLimit = 0;
     private Boolean requestModeration = true;
     @NotNull
+    @NotBlank
     @Length(min = 3, max = 120)
     private String title;
 }

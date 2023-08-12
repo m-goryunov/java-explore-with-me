@@ -30,12 +30,11 @@ public class EventControllerPublic {
                                                   @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                                   @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                                   @RequestParam(defaultValue = "false") Boolean onlyAvailable,
-                                                  @RequestParam(defaultValue = "EVENT_DATE") String sort,
                                                   @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
                                                   @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size,
                                                   HttpServletRequest request) {
         final Pageable pageable = PageRequest.of(from / size, size);
-        return EventMapper.toShortDto(eventService.getAllEventsPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, pageable, request));
+        return EventMapper.toShortDto(eventService.getAllEventsPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable, request));
     }
 
     @GetMapping("/{eventId}")
