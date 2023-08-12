@@ -100,7 +100,6 @@ public class EventService {
             LocalDateTime newDate = update.getEventDate();
             isBeforeTwoHours(newDate);
             event.setEventDate(newDate);
-            size++;
         }
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ForbiddenException("Событие может обновить только владелец");
@@ -110,44 +109,35 @@ public class EventService {
         }
         if (update.getAnnotation() != null && !update.getAnnotation().isBlank()) {
             event.setAnnotation(update.getAnnotation());
-            size++;
         }
         if (update.getCategory() != null) {
             Category category = getCategoryById(update.getCategory());
             event.setCategory(category);
-            size++;
         }
         if (update.getDescription() != null && !update.getDescription().isBlank()) {
             event.setDescription(update.getDescription());
-            size++;
         }
         if (update.getLocation() != null) {
             event.setLocation(getLocation(LocationMapper.toLocation(update.getLocation())));
-            size++;
         }
         if (update.getParticipantLimit() != null) {
             event.setParticipantLimit(update.getParticipantLimit());
-            size++;
         }
         if (update.getRequestModeration() != null) {
             event.setRequestModeration(update.getRequestModeration());
-            size++;
         }
         if (update.getStateAction() != null) {
             switch (update.getStateAction()) {
                 case SEND_TO_REVIEW:
                     event.setState(PENDING);
-                    size++;
                     break;
                 case CANCEL_REVIEW:
                     event.setState(CANCELED);
-                    size++;
                     break;
             }
         }
         if (update.getTitle() != null && !update.getTitle().isBlank()) {
             event.setTitle(update.getTitle());
-            size++;
         }
         return event;
     }
@@ -210,52 +200,41 @@ public class EventService {
         if (event.getState().equals(PUBLISHED) || event.getState().equals(CANCELED)) {
             throw new ForbiddenException("Нельзя изменить завершенное событие.");
         }
-        int countUpdate = 0;
         if (update.getAnnotation() != null && !update.getAnnotation().isBlank()) {
             event.setAnnotation(update.getAnnotation());
         }
         if (update.getCategory() != null) {
             Category category = getCategoryById(update.getCategory());
             event.setCategory(category);
-            countUpdate = 1;
         }
         if (update.getDescription() != null && !update.getDescription().isBlank()) {
             event.setDescription(update.getDescription());
-            countUpdate = 1;
         }
         if (update.getEventDate() != null) {
             isBeforeTwoHours(update.getEventDate());
             event.setEventDate(update.getEventDate());
-            countUpdate = 1;
         }
         if (update.getLocation() != null) {
             event.setLocation(getLocation(LocationMapper.toLocation(update.getLocation())));
-            countUpdate = 1;
         }
         if (update.getPaid() != null) {
             event.setPaid(update.getPaid());
-            countUpdate = 1;
         }
         if (update.getParticipantLimit() != null) {
             event.setParticipantLimit(update.getParticipantLimit());
-            countUpdate = 1;
         }
         if (update.getRequestModeration() != null) {
             event.setRequestModeration(update.getRequestModeration());
-            countUpdate = 1;
         }
         if (update.getStateAction() != null) {
             if (update.getStateAction().equals(PUBLISH_EVENT)) {
                 event.setState(PUBLISHED);
-                countUpdate = 1;
             } else if (update.getStateAction().equals(REJECT_EVENT)) {
                 event.setState(CANCELED);
-                countUpdate = 1;
             }
         }
         if (update.getTitle() != null && !update.getTitle().isBlank()) {
             event.setTitle(update.getTitle());
-            countUpdate = 1;
         }
         return event;
     }
