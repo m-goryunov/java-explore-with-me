@@ -1,14 +1,13 @@
 package ru.practicum.request.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ConfirmedRequestsDto {
-    private long count;
-
+    private Long count;
     private Long event;
+
 }

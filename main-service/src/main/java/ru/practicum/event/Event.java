@@ -29,7 +29,7 @@ public class Event {
     @JoinColumn(name = "category_id")
     Category category;
     @Transient
-    Integer confirmedRequests = 0;
+    Integer confirmedRequests;
     @Column(name = "created_on")
     LocalDateTime createdOn;
     @Column(name = "description", length = 7000)

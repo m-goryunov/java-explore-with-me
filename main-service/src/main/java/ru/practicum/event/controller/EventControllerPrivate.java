@@ -32,8 +32,8 @@ public class EventControllerPrivate {
 
     @GetMapping
     public List<EventShortDto> getAllEventsByUserId(@PathVariable(value = "userId") @Min(1) Long userId,
-                                                    @RequestParam(value = "from", required = false, defaultValue = "0") @Min(0) Integer from,
-                                                    @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) Integer size) {
+                                                    @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                                    @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         final Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
         return EventMapper.toShortDto(eventService.getEventsByUserId(userId, pageable));
     }

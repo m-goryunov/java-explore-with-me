@@ -25,6 +25,7 @@ import ru.practicum.location.LocationMapper;
 import ru.practicum.location.LocationRepository;
 import ru.practicum.request.ParticipationRequest;
 import ru.practicum.request.RequestRepository;
+import ru.practicum.request.dto.ConfirmedRequestsDto;
 import ru.practicum.request.dto.RequestMapper;
 import ru.practicum.request.util.RequestStatus;
 import ru.practicum.user.User;
@@ -32,10 +33,7 @@ import ru.practicum.user.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.practicum.event.util.State.*;
@@ -53,6 +51,7 @@ public class EventService {
     final LocationRepository locationRepository;
     final RequestRepository requestRepository;
     final StatsClient statsClient;
+    final ObjectMapper mapper = new ObjectMapper();
 
     @Value("${app}")
     String app;
@@ -269,10 +268,42 @@ public class EventService {
         }
 
         List<Event> events = eventRepository.findAll(spec, pageable);
+
+        Map<Long, Long> ids = getConfirmedRequestsList(events);
+
         for (Event event : events) {
-            event.setConfirmedRequests(requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED));
+            if (ids.get(event.getId()) != null) {
+                event.setConfirmedRequests(Math.toIntExact(ids.get(event.getId())));
+            }
         }
+
         return events;
+    }
+
+    private Map<Long, Long> getConfirmedRequestsList(List<Event> events) {
+
+        if ((events == null) || (events.isEmpty())) {
+            return new HashMap<>();
+        }
+
+        List<ConfirmedRequestsDto> confirmedRequests = requestRepository.countByEventIdInAndStatus(events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList()), RequestStatus.CONFIRMED);
+
+/*        Map<Long, Long> ids = new HashMap<>();
+        for (ConfirmedRequestsDto confirmedRequest : confirmedRequests) {
+            ids.put(confirmedRequest.getEvent(), confirmedRequest.getCount());
+        }*/
+
+        Map<Long, Long> map = new HashMap<>();
+        for (ConfirmedRequestsDto confirmedRequest : confirmedRequests) {
+            if (map.put(confirmedRequest.getEvent(), confirmedRequest.getCount()) != null) {
+                throw new IllegalStateException("Duplicate key");
+            }
+        }
+        return map;
+
+        //return ids;
     }
 
     public List<Event> getAllEventsPublic(String text, List<Long> categories, Boolean paid,
@@ -319,10 +350,18 @@ public class EventService {
         spec = spec.and((root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("state"), PUBLISHED));
 
-        List<Event> resultEvents = eventRepository.findAll(spec, pageable);
-        setViewsOfEvents(resultEvents);
+        List<Event> events = eventRepository.findAll(spec, pageable);
+        setViewsOfEvents(events);
 
-        return resultEvents;
+        Map<Long, Long> ids = getConfirmedRequestsList(events);
+
+        for (Event event : events) {
+            if (ids.get(event.getId()) != null) {
+                event.setConfirmedRequests(Math.toIntExact(ids.get(event.getId())));
+            }
+        }
+
+        return events;
     }
 
     public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
@@ -410,8 +449,6 @@ public class EventService {
 
         if (start.isPresent()) {
             ResponseEntity<Object> response = statsClient.getStats(start.get(), LocalDateTime.now(), uris, false);
-
-            ObjectMapper mapper = new ObjectMapper();
             List<ViewStatsDto> viewStatsList = mapper.convertValue(response.getBody(), new TypeReference<>() {
             });
             for (Event event : events) {
@@ -427,7 +464,6 @@ public class EventService {
                 event.setViews(views.intValue() - 2);
             }
         }
-        eventRepository.saveAll(events);
     }
 
     private Category getCategoryById(Long categoryId) {
