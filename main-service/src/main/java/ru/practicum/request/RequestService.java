@@ -41,11 +41,6 @@ public class RequestService {
             request.setStatus(RequestStatus.PENDING);
         } else request.setStatus(RequestStatus.CONFIRMED);
         requestRepository.save(request);
-        int countRequestConfirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
-        if (event.getConfirmedRequests() != countRequestConfirmed) {
-            event.setConfirmedRequests(countRequestConfirmed);
-            eventRepository.save(event);
-        }
         if (event.getParticipantLimit() == 0) {
             request.setStatus(RequestStatus.CONFIRMED);
         }

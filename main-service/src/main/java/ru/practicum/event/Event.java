@@ -28,8 +28,8 @@ public class Event {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "category_id")
     Category category;
-    @Column(name = "confirmed_requests")
-    Integer confirmedRequests;
+    @Transient
+    Integer confirmedRequests = 0;
     @Column(name = "created_on")
     LocalDateTime createdOn;
     @Column(name = "description", length = 7000)

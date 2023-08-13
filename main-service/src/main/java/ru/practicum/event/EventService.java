@@ -70,8 +70,6 @@ public class EventService {
         event.setState(PENDING);
         event.setLocation(getLocation(LocationMapper.toLocation(eventDto.getLocation())));
         event.setCreatedOn(createdOn);
-        event.setConfirmedRequests(0);
-        event.setViews(0);
         return eventRepository.save(event);
     }
 
@@ -153,6 +151,7 @@ public class EventService {
 
         switch (status) {
             case CONFIRMED:
+                event.setConfirmedRequests(requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
                 if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
                     throw new ForbiddenException("Лимит участия заполнен.");
                 }
@@ -175,6 +174,7 @@ public class EventService {
                                 .map(RequestMapper::toParticipationRequestDto).collect(Collectors.toList()))
                         .build();
             case REJECTED:
+                event.setConfirmedRequests(requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
                 if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
                     throw new ForbiddenException("Лимит участия заполнен.");
                 }
@@ -229,6 +229,7 @@ public class EventService {
         if (update.getStateAction() != null) {
             if (update.getStateAction().equals(PUBLISH_EVENT)) {
                 event.setState(PUBLISHED);
+                event.setPublisherDate(LocalDateTime.now());
             } else if (update.getStateAction().equals(REJECT_EVENT)) {
                 event.setState(CANCELED);
             }
@@ -266,7 +267,12 @@ public class EventService {
         if (rangeStart != null) {
             spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get("eventDate"), rangeStart));
         }
-        return eventRepository.findAll(spec, pageable);
+
+        List<Event> events = eventRepository.findAll(spec, pageable);
+        for (Event event : events) {
+            event.setConfirmedRequests(requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED));
+        }
+        return events;
     }
 
     public List<Event> getAllEventsPublic(String text, List<Long> categories, Boolean paid,
@@ -324,6 +330,7 @@ public class EventService {
                 () -> new NotFoundException("Событие не найдено."));
         saveHit(request);
         setViewsOfEvents(List.of(event));
+        event.setConfirmedRequests(requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
         return EventMapper.toFullDto(event);
     }
 
@@ -346,8 +353,6 @@ public class EventService {
             freeRequest--;
         }
         requestRepository.saveAll(requests);
-        Integer confirmedRequestUpdate = event.getConfirmedRequests() + processedIds.size();
-        event.setConfirmedRequests(confirmedRequestUpdate);
         eventRepository.save(event);
         caseUpdatedStatus.setIdsFromUpdateStatus(ids);
         caseUpdatedStatus.setProcessedIds(processedIds);
