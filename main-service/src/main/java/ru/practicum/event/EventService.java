@@ -276,6 +276,8 @@ public class EventService {
         for (Event event : events) {
             if (ids.get(event.getId()) != null) {
                 event.setConfirmedRequests(Math.toIntExact(ids.get(event.getId())));
+            } else {
+                event.setConfirmedRequests(0);
             }
         }
 
@@ -360,6 +362,8 @@ public class EventService {
         for (Event event : events) {
             if (ids.get(event.getId()) != null) {
                 event.setConfirmedRequests(Math.toIntExact(ids.get(event.getId())));
+            } else {
+                event.setConfirmedRequests(0);
             }
         }
 
