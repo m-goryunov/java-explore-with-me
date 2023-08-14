@@ -342,13 +342,12 @@ public class EventService {
         List<Event> events = eventRepository.findAll(spec, pageable);
         setViewsOfEvents(events);
 
-        Map<Long, Long> ids = getConfirmedRequestsList(events);
+        if (events != null && !events.isEmpty()) {
+            Map<Long, Long> ids = getConfirmedRequestsList(events);
 
-        for (Event event : events) {
-            if (ids.get(event.getId()) != null) {
-                event.setConfirmedRequests(Math.toIntExact(ids.get(event.getId())));
-            } else {
-                event.setConfirmedRequests(0);
+            for (Event event : events) {
+                Long confirmedRequests = ids.get(event.getId());
+                event.setConfirmedRequests(confirmedRequests != null ? Math.toIntExact(confirmedRequests) : 0);
             }
         }
 
