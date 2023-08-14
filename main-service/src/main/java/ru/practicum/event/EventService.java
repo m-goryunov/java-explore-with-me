@@ -70,6 +70,7 @@ public class EventService {
         event.setLocation(getLocation(LocationMapper.toLocation(eventDto.getLocation())));
         event.setCreatedOn(createdOn);
         event.setConfirmedRequests(0);
+        event.setViews(0);
         return eventRepository.save(event);
     }
 
