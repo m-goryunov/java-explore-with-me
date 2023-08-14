@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ConfirmedRequestsDto {
-    private Long count;
     private Long event;
+    private Long count;
 
 }
