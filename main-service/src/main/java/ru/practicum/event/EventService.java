@@ -93,7 +93,6 @@ public class EventService {
     @Transactional
     public Event updateEventByOwner(Long userId, Long eventId, UpdateEventUserRequest update) {
         isUserExists(userId);
-        int size = 0;
         Event event = getEventByInitiatorAndEventId(userId, eventId);
         if (update.getEventDate() != null) {
             LocalDateTime newDate = update.getEventDate();
@@ -439,7 +438,7 @@ public class EventService {
                 .min(LocalDateTime::compareTo);
 
         if (start.isPresent()) {
-            ResponseEntity<Object> response = statsClient.getStats(start.get(), LocalDateTime.now(), uris, false);
+            ResponseEntity<Object> response = statsClient.getStats(start.get(), LocalDateTime.now(), uris, true);
             List<ViewStatsDto> viewStatsList = mapper.convertValue(response.getBody(), new TypeReference<>() {
             });
             for (Event event : events) {
@@ -452,7 +451,7 @@ public class EventService {
                         .orElse(null);
 
                 Long views = (currentViewStats != null) ? currentViewStats.getHits() : 0;
-                event.setViews(views.intValue() - 2);
+                event.setViews(views.intValue());
             }
         }
     }
