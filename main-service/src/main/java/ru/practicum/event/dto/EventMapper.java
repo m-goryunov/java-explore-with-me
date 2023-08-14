@@ -15,9 +15,7 @@ import java.util.stream.Collectors;
 public class EventMapper {
     public static Event toEvent(NewEventDto newEventDto) {
         return Event.builder()
-                .id(null)
                 .annotation(newEventDto.getAnnotation())
-                .confirmedRequests(null)
                 .description(newEventDto.getDescription())
                 .eventDate(newEventDto.getEventDate())
                 .location(LocationMapper.toLocation(newEventDto.getLocation()))

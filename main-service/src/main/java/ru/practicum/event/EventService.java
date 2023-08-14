@@ -271,13 +271,15 @@ public class EventService {
 
         List<Event> events = eventRepository.findAll(spec, pageable);
 
-        Map<Long, Long> ids = getConfirmedRequestsList(events);
+        if(events != null){
+            Map<Long, Long> ids = getConfirmedRequestsList(events);
 
-        for (Event event : events) {
-            if (ids.get(event.getId()) != null) {
-                event.setConfirmedRequests(Math.toIntExact(ids.get(event.getId())));
-            } else {
-                event.setConfirmedRequests(0);
+            for (Event event : events) {
+                if (ids.get(event.getId()) != null) {
+                    event.setConfirmedRequests(Math.toIntExact(ids.get(event.getId())));
+                } else {
+                    event.setConfirmedRequests(0);
+                }
             }
         }
 
@@ -286,18 +288,9 @@ public class EventService {
 
     private Map<Long, Long> getConfirmedRequestsList(List<Event> events) {
 
-        if ((events == null) || (events.isEmpty())) {
-            return new HashMap<>();
-        }
-
         List<ConfirmedRequestsDto> confirmedRequests = requestRepository.countByEventIdInAndStatus(events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList()), RequestStatus.CONFIRMED);
-
-/*        Map<Long, Long> ids = new HashMap<>();
-        for (ConfirmedRequestsDto confirmedRequest : confirmedRequests) {
-            ids.put(confirmedRequest.getEvent(), confirmedRequest.getCount());
-        }*/
 
         Map<Long, Long> map = new HashMap<>();
         for (ConfirmedRequestsDto confirmedRequest : confirmedRequests) {
@@ -306,8 +299,6 @@ public class EventService {
             }
         }
         return map;
-
-        //return ids;
     }
 
     public List<Event> getAllEventsPublic(String text, List<Long> categories, Boolean paid,
@@ -385,6 +376,7 @@ public class EventService {
         List<Long> ids = caseUpdatedStatus.getIdsFromUpdateStatus();
         int idsSize = caseUpdatedStatus.getIdsFromUpdateStatus().size();
         List<Long> processedIds = new ArrayList<>();
+        event.setConfirmedRequests(requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
         int freeRequest = event.getParticipantLimit() - event.getConfirmedRequests();
         for (int i = 0; i < idsSize; i++) {
             final ParticipationRequest request = getRequestById(eventId, ids.get(i));
