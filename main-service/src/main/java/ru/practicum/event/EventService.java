@@ -298,7 +298,7 @@ public class EventService {
         Map<Long, Long> map = new HashMap<>();
         for (ConfirmedRequestsDto confirmedRequest : confirmedRequests) {
             if (map.put(confirmedRequest.getEvent(), confirmedRequest.getCount()) != null) {
-                throw new IllegalStateException("Duplicate key");
+                map.put(confirmedRequest.getEvent(), confirmedRequest.getCount());
             }
         }
         return map;
