@@ -271,7 +271,7 @@ public class EventService {
 
         List<Event> events = eventRepository.findAll(spec, pageable);
 
-        if(events != null){
+        if (events != null) {
             Map<Long, Long> ids = getConfirmedRequestsList(events);
 
             for (Event event : events) {
