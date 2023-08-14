@@ -20,7 +20,7 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
     Integer countByEventIdAndStatus(Long eventId, RequestStatus status);
 
     @Query(
-            "SELECT new ru.practicum.request.dto.ConfirmedRequestsDto(p.event.id, COUNT((p.id))) " +
+            "SELECT new ru.practicum.request.dto.ConfirmedRequestsDto(p.event.id, COUNT(p.id)) " +
                     "FROM ParticipationRequest p " +
                     "WHERE (p.event.id IN :eventId) " +
                     "AND (p.status = :status) " +
