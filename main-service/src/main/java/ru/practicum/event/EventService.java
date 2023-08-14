@@ -271,15 +271,12 @@ public class EventService {
 
         List<Event> events = eventRepository.findAll(spec, pageable);
 
-        if (events != null) {
+        if (events != null && !events.isEmpty()) {
             Map<Long, Long> ids = getConfirmedRequestsList(events);
 
             for (Event event : events) {
-                if (ids.get(event.getId()) != null) {
-                    event.setConfirmedRequests(Math.toIntExact(ids.get(event.getId())));
-                } else {
-                    event.setConfirmedRequests(0);
-                }
+                Long confirmedRequests = ids.get(event.getId());
+                event.setConfirmedRequests(confirmedRequests != null ? Math.toIntExact(confirmedRequests) : 0);
             }
         }
 
@@ -287,16 +284,13 @@ public class EventService {
     }
 
     private Map<Long, Long> getConfirmedRequestsList(List<Event> events) {
-
         List<ConfirmedRequestsDto> confirmedRequests = requestRepository.countByEventIdInAndStatus(events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList()), RequestStatus.CONFIRMED);
 
         Map<Long, Long> map = new HashMap<>();
         for (ConfirmedRequestsDto confirmedRequest : confirmedRequests) {
-            if (map.put(confirmedRequest.getEvent(), confirmedRequest.getCount()) != null) {
-                map.put(confirmedRequest.getEvent(), confirmedRequest.getCount());
-            }
+            map.put(confirmedRequest.getEvent(), confirmedRequest.getCount());
         }
         return map;
     }
