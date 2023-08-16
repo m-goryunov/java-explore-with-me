@@ -16,6 +16,8 @@ import ru.practicum.StatsClient;
 import ru.practicum.ViewStatsDto;
 import ru.practicum.category.Category;
 import ru.practicum.category.CategoryRepository;
+import ru.practicum.comment.CommentRepository;
+import ru.practicum.comment.dto.CommentCountDto;
 import ru.practicum.event.dto.*;
 import ru.practicum.exception.ForbiddenException;
 import ru.practicum.exception.NotFoundException;
@@ -50,6 +52,7 @@ public class EventService {
     final CategoryRepository categoryRepository;
     final LocationRepository locationRepository;
     final RequestRepository requestRepository;
+    final CommentRepository commentRepository;
     final StatsClient statsClient;
     final ObjectMapper mapper = new ObjectMapper();
 
@@ -76,7 +79,19 @@ public class EventService {
 
     public List<Event> getEventsByUserId(Long userId, Pageable pageable) {
         isUserExists(userId);
-        return eventRepository.findAllByInitiatorId(userId, pageable);
+
+        List<Event> events = eventRepository.findAllByInitiatorId(userId, pageable);
+
+        if (events != null && !events.isEmpty()) {
+            Map<Long, Long> ids = getCommentsCountByEventIds(events);
+
+            for (Event event : events) {
+                Long commentsCount = ids.get(event.getId());
+                event.setCommentsCount(commentsCount != null ? Math.toIntExact(commentsCount) : 0);
+            }
+        }
+
+        return events;
     }
 
     public Event getFullEventByOwner(Long userId, Long eventId) {
@@ -294,6 +309,18 @@ public class EventService {
         return map;
     }
 
+    private Map<Long, Long> getCommentsCountByEventIds(List<Event> events) {
+        List<CommentCountDto> commentsCount = commentRepository.countByEventId(events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList()));
+
+        Map<Long, Long> map = new HashMap<>();
+        for (CommentCountDto commentCountDto : commentsCount) {
+            map.put(commentCountDto.getEventId(), commentCountDto.getCommentCount());
+        }
+        return map;
+    }
+
     public List<Event> getAllEventsPublic(String text, List<Long> categories, Boolean paid,
                                           LocalDateTime start, LocalDateTime end,
                                           Boolean onlyAvailable, Pageable pageable, HttpServletRequest request) {
@@ -347,6 +374,13 @@ public class EventService {
             for (Event event : events) {
                 Long confirmedRequests = ids.get(event.getId());
                 event.setConfirmedRequests(confirmedRequests != null ? Math.toIntExact(confirmedRequests) : 0);
+            }
+
+            Map<Long, Long> commentIds = getCommentsCountByEventIds(events);
+
+            for (Event event : events) {
+                Long commentsCount = commentIds.get(event.getId());
+                event.setCommentsCount(commentsCount != null ? Math.toIntExact(commentsCount) : 0);
             }
         }
 

@@ -37,7 +37,7 @@ public class CommentService {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие не найдено."));
 
-        if(event.getState() != State.PUBLISHED) {
+        if (event.getState() != State.PUBLISHED) {
             throw new ForbiddenException("Оставить коммент можно только к опубликованному событию.");
         }
 
