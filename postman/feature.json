@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "c3bf235b-c3a8-4614-905f-0d17356dfd5a",
+		"_postman_id": "1b606d7e-2e0f-481a-8d46-c3884a74d26c",
 		"name": "Tests for featureComments",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
-		"_exporter_id": "26794644"
+		"_exporter_id": "26302696"
 	},
 	"item": [
 		{
@@ -999,7 +999,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/users/:userId/comments?eventId=1",
+							"raw": "{{baseUrl}}/users/:userId/comments?eventId={{eventId}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -1011,13 +1011,13 @@
 							"query": [
 								{
 									"key": "eventId",
-									"value": "1"
+									"value": "{{eventId}}"
 								}
 							],
 							"variable": [
 								{
 									"key": "userId",
-									"value": "1"
+									"value": "{{userId}}"
 								}
 							]
 						}
