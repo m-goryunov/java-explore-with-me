@@ -57,4 +57,6 @@ public class Event {
     String title;
     @Transient
     Integer views;
+    @Transient
+    Integer commentsCount;
 }
