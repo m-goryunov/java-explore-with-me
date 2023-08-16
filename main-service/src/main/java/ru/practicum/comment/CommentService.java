@@ -12,6 +12,7 @@ import ru.practicum.comment.dto.CommentMapper;
 import ru.practicum.comment.dto.NewCommentDto;
 import ru.practicum.event.Event;
 import ru.practicum.event.EventRepository;
+import ru.practicum.event.util.State;
 import ru.practicum.exception.ForbiddenException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.User;
@@ -36,6 +37,9 @@ public class CommentService {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие не найдено."));
 
+        if(event.getState() != State.PUBLISHED) {
+            throw new ForbiddenException("Оставить коммент можно только к опубликованному событию.");
+        }
 
         Comment comment = CommentMapper.toModel(newCommentDto);
         comment.setAuthor(user);
@@ -54,6 +58,11 @@ public class CommentService {
         if (!comment.getAuthor().getId().equals(userId)) {
             throw new ForbiddenException("Обновить коммент может только владелец.");
         }
+
+        if (LocalDateTime.now().isAfter(comment.getCreatedDate().plusHours(1L))) {
+            throw new ForbiddenException("Редактировать коммент можно только в течение 1 часа после создания.");
+        }
+
         comment.setText(newCommentDto.getText());
         return comment;
     }
